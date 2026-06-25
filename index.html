@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mağaza Açılış Talep Formu V13</title>
+
+<style>
+:root{
+--success-main:#6EF58C;
+--success-dark:#0F311D;
+--success-card:#12321F;
+--success-border:#74FF96;
+--blue:#2563eb;
+--red:#dc2626;
+--yellow:#FFD54A;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Segoe UI,Arial,sans-serif}
+body{background:linear-gradient(135deg,#dbeafe,#eef2f7 45%,#e2e8f0);color:#172033;padding:18px}
+.container{max-width:1450px;margin:auto}
+.saveStatus{position:fixed;top:14px;right:16px;background:#0f172a;color:white;padding:9px 14px;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.2);font-weight:800;z-index:9999}
+.header{background:linear-gradient(135deg,#0f172a,#1e3a8a,#2563eb);color:white;padding:28px;border-radius:24px;margin-bottom:16px;box-shadow:0 18px 40px rgba(15,23,42,.28)}
+.header h1{font-size:34px;margin-bottom:6px}
+.header p{opacity:.92}
+.card{background:rgba(255,255,255,.94);border:1px solid rgba(148,163,184,.25);border-radius:20px;padding:18px;margin-bottom:14px;box-shadow:0 10px 26px rgba(15,23,42,.09)}
+.compact{padding:14px 16px}
+.darkCard{background:linear-gradient(135deg,#0f172a,#1e293b);color:white}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-top:10px}
+input,textarea,select{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:11px;font-size:14px}
+input[readonly]{background:#f1f5f9;color:#475569}
+.loginBtn,.logoutBtn,.dangerBtn{border:none;border-radius:11px;padding:10px 14px;font-weight:900;cursor:pointer}
+.loginBtn{background:#2563eb;color:white}
+.logoutBtn{background:#ef4444;color:white;display:none}
+.dangerBtn{background:#991b1b;color:white}
+.sectionCard{overflow:hidden;padding:0}
+.sectionCard.evrak{border-left:8px solid #2563eb}
+.sectionCard.mimari{border-left:8px solid #7c3aed}
+.sectionCard.mekanik{border-left:8px solid #059669}
+.sectionCard.elektrik{border-left:8px solid #ea580c}
+.accordionHead{display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:18px 22px;background:linear-gradient(135deg,#f8fafc,#fff);border-bottom:1px solid #e5e7eb}
+.accordionHead h2{font-size:23px}
+.addBtn{background:#16a34a;color:white;border:none;border-radius:11px;padding:9px 14px;font-weight:900;cursor:pointer;display:none}
+.content{display:none;padding:16px 20px 20px}
+.content.open{display:block}
+.item{display:grid;grid-template-columns:1.35fr 1.55fr 1fr auto auto;gap:10px;align-items:center;border:1px solid #e2e8f0;background:#fff;border-radius:15px;padding:12px;margin-bottom:9px;box-shadow:0 4px 12px rgba(15,23,42,.04)}
+.itemText{font-weight:700;line-height:1.35}
+.muted{font-size:12px;color:#64748b;margin-top:4px}
+.status{display:flex;gap:7px;flex-wrap:wrap}
+.status input{display:none}
+.status label{font-size:12px;font-weight:800;padding:7px 10px;border-radius:999px;border:1px solid #cbd5e1;background:#f8fafc;cursor:pointer}
+.status label:has(input:checked).done{background:var(--success-main);border-color:var(--success-border);color:var(--success-dark)}
+.status label:has(input:checked).today{background:#fef9c3;border-color:#eab308;color:#854d0e}
+.status label:has(input:checked).missing{background:#fee2e2;border-color:#ef4444;color:#991b1b}
+.status label:has(input:checked).na{background:#e5e7eb;border-color:#9ca3af;color:#374151}
+.btn{border:none;border-radius:10px;padding:8px 10px;cursor:pointer;font-weight:900}
+.edit{background:#facc15;display:none}
+.del{background:#ef4444;color:white;display:none}
+.submit{width:100%;background:linear-gradient(135deg,#1d4ed8,#2563eb);color:white;border:none;padding:16px;border-radius:14px;font-size:17px;font-weight:900;cursor:pointer}
+.actionGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:12px}
+.appointmentBox{display:none;margin-top:14px;background:rgba(255,255,255,.08);border:1px solid rgba(116,255,150,.45);padding:14px;border-radius:16px}
+.resultFail{border-left:8px solid #ef4444}
+.requestCard{overflow:hidden;padding:0;border-left:8px solid var(--success-border);background:linear-gradient(135deg,#101827,#12321F 70%,#14532d)!important;color:white}
+.requestHead{display:flex;justify-content:space-between;gap:14px;align-items:center;padding:18px 22px;cursor:pointer;border-bottom:1px solid rgba(116,255,150,.25)}
+.requestHead h2{font-size:24px;color:var(--success-main)}
+.requestBody{display:none;padding:18px 22px 22px}
+.requestBody.open{display:block}
+.storeTitle{font-size:42px;font-weight:900;color:#6EF58C;margin:8px 0 14px;letter-spacing:.5px}
+.statusPill{display:inline-block;padding:9px 16px;border-radius:999px;font-weight:900;margin-top:8px}
+.statusPill.ok{background:var(--success-main);color:var(--success-dark)}
+.statusPill.conditional{background:var(--yellow);color:#3b2f00}
+.statusPill.reject{background:var(--red);color:white}
+.statusPill.waiting{background:#dbeafe;color:#1e3a8a}
+.appointmentBanner{background:#0F311D;border:3px solid #74FF96;color:white;padding:18px;border-radius:18px;margin:16px 0;box-shadow:0 0 22px rgba(116,255,150,.35)}
+.appointmentBanner h2{color:#6EF58C;margin-bottom:8px}
+.appointmentBanner p{font-size:22px;font-weight:900}
+.reqMini{font-size:13px;color:#d1fae5}
+@media(max-width:1000px){
+.item{grid-template-columns:1fr}
+.accordionHead,.requestHead{flex-direction:column;align-items:flex-start}
+.header h1{font-size:28px}
+.storeTitle{font-size:34px}
+}
+</style>
+</head>
+
+<body>
+
+<div id="saveStatus" class="saveStatus">🟢 Kaydedildi</div>
+
+<div class="container">
+
+<div class="header">
+<h1>Mağaza Açılış Talep Formu</h1>
+<p>Eksik veya değerlendirilmemiş madde varsa açılış talebi gönderilemez.</p>
+</div>
+
+<div class="card darkCard compact">
+<h2>Admin Girişi</h2>
+<div class="grid">
+<input id="adminUser" value="admin" placeholder="Kullanıcı adı">
+<input id="adminPass" type="password" placeholder="Şifre">
+<button class="loginBtn" onclick="adminLogin()">Giriş Yap</button>
+<button class="logoutBtn" id="logoutBtn" onclick="adminLogout()">Çıkış Yap</button>
+</div>
+<p class="muted" id="loginStatus" style="color:#cbd5e1;margin-top:8px;">Misafir modundasınız. Madde ekle / düzenle / sil kapalı.</p>
+</div>
+
+<div class="card compact">
+<h2>Genel Bilgiler</h2>
+<div class="grid">
+<input id="storeName" placeholder="Mağaza Adı">
+<input id="contractor" placeholder="Yüklenici Firma">
+<input id="editorName" placeholder="Formu Düzenleyen">
+<input id="phone" placeholder="Telefon">
+<input id="email" placeholder="E-Posta">
+<input id="requestDate" readonly>
+</div>
+</div>
+
+<div id="sections"></div>
+
+<div class="card">
+<h2>Açıklamalar</h2><br>
+<textarea id="notes" rows="4" placeholder="Açılış talebi ile ilgili açıklama..."></textarea>
+</div>
+
+<div class="card">
+<h2>Talep İşlemleri</h2>
+<p class="muted">Tüm maddeler Tamamlandı / Gün İçinde Tamamlanacak / N/A olmalıdır.</p>
+<br>
+<button class="submit" onclick="submitRequest()">AÇILIŞ TALEBİ GÖNDER</button>
+</div>
+
+<div id="validationBox"></div>
+
+<div class="card">
+<h2>Oluşturulan Talepler</h2>
+<p class="muted">Tüm açılış talepleri burada akordeon olarak listelenir.</p>
+</div>
+
+<div id="requestsBox"></div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getFirestore,collection,doc,addDoc,setDoc,deleteDoc,onSnapshot,serverTimestamp,getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyDScLUAfFQTFcYXs7NNgswkQyq8MW1pT0o",
+authDomain: "open-be04b.firebaseapp.com",
+projectId: "open-be04b",
+storageBucket: "open-be04b.firebasestorage.app",
+messagingSenderId: "683666834756",
+appId: "1:683666834756:web:eb2a00fafe8f44e56b4311"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+requestDate.value = new Date().toLocaleDateString("tr-TR");
+
+let isAdmin = false;
+let currentItems = [];
+let requests = [];
+
+const ADMIN_USER = "admin";
+const ADMIN_PASS = "1234";
+
+const ITEMS_COLLECTION = "openingFormItemsV13";
+const REQUESTS_COLLECTION = "openingRequestsV13";
+
+const defaultItems = {
+evrak:[
+"As-Built projeler gönderildi",
+"Şantiye elektriği faturası ödendi"
+],
+mimari:[
+"Vitrin uygun",
+"Cephe ve kira sınırı uygun",
+"Tabela montajı tamamlandı ve uygun",
+"Vitrin aydınlatmaları çalışıyor ve uygun",
+"Zemin kaplamaları tamamlandı",
+"Duvar kaplamaları tamamlandı",
+"Tavan imalatları tamamlandı",
+"Müdahale kapakları bırakıldı (Elektrik ve Mekanik)",
+"Son temizlik tamamlandı"
+],
+mekanik:[
+"Klima sistemi devreye alındı",
+"Havalandırma sistemi devreye alındı",
+"Temiz su sistemi devreye alındı",
+"Pis su sistemi devreye alındı",
+"Drenaj sistemi test edildi",
+"Yağ tutucu devreye alındı (varsa)",
+"Gaz dedektörü ve selenoid vana sistemi test edildi (varsa)",
+"Yangın sprinkler tesisatı devreye alındı (basınç testleri, vanalar ve ilgili kontroller dahil)",
+"Isıtma-soğutma basınç testleri tamamlandı",
+"Başka mağazalarla mekanik tesisat etkileşimi varsa gerekli işler tamamlandı"
+],
+elektrik:[
+"Kalıcı enerji verildi",
+"Elektrik sayaçları mühürlenebilir bölümde",
+"Kompanzasyon sistemi devreye alındı (varsa)",
+"Jeneratör yük atma sistemi canlı test edilerek devreye alındı",
+"Genel aydınlatma sistemi çalışıyor",
+"Acil aydınlatma sistemi devreye alındı (Exit ve nöbetçi aydınlatmalar dahil)",
+"Yangın alarm sistemi devreye alındı (Securitas - test belgesi) - dedektörler, sirenler, flaşörler, manuel yangın butonları, panic butonları, müzik kesme senaryosu, loop testleri ve ilgili entegrasyonlar dahil",
+"Acil anons sistemi devreye alındı",
+"ZDK panosu için kedi yolu mevcut",
+"Davlumbaz izleme sistemi devreye alındı (On Otomasyon - test belgesi)",
+"Davlumbaz söndürme sistemi devreye alındı (Securitas - test belgesi)",
+"Başka mağazalarla elektrik tesisat etkileşimi varsa gerekli işler tamamlandı"
+]
+};
+
+const sectionTitles = {
+evrak:"📁 EVRAK",
+mimari:"🏗 MİMARİ",
+mekanik:"❄️ MEKANİK",
+elektrik:"⚡ ELEKTRİK"
+};
+
+const sectionCodes = {
+evrak:"EV",
+mimari:"MİM",
+mekanik:"MEK",
+elektrik:"ELK"
+};
+
+sections.innerHTML = Object.entries(sectionTitles).map(([key,title])=>`
+<div class="card sectionCard ${key}">
+  <div class="accordionHead" onclick="toggleSection('${key}')">
+    <h2>${title}</h2>
+    <button class="addBtn adminOnly" onclick="event.stopPropagation(); addItem('${key}')">+ Madde Ekle</button>
+  </div>
+  <div class="content" id="${key}Content">
+    <div id="${key}List"></div>
+  </div>
+</div>`).join("");
+
+evrakContent.classList.add("open");
+
+window.toggleSection = key => document.getElementById(key+"Content").classList.toggle("open");
+window.toggleRequest = id => document.getElementById("requestBody_"+id).classList.toggle("open");
+
+function showSaving(){saveStatus.innerHTML="🟡 Kaydediliyor..."}
+function showSaved(){saveStatus.innerHTML="🟢 Kaydedildi"}
+function nowText(){return new Date().toLocaleString("tr-TR")}
+function editor(){return editorName.value || "Belirtilmedi"}
+function safe(t){return String(t||"").replaceAll("'","\\'").replaceAll("\n"," ")}
+function escAttr(t){return String(t||"").replaceAll('"',"&quot;")}
+
+function refreshAdminUI(){
+document.querySelectorAll(".adminOnly,.edit,.del,.addBtn,.dangerBtn").forEach(el=>{
+el.style.display=isAdmin?"inline-block":"none";
+});
+logoutBtn.style.display=isAdmin?"inline-block":"none";
+loginStatus.textContent=isAdmin
+? "Admin modu aktif. Madde ekle / düzenle / sil açık."
+: "Misafir modundasınız. Madde ekle / düzenle / sil kapalı.";
+}
+
+window.adminLogin=function(){
+if(adminUser.value.trim()===ADMIN_USER && adminPass.value.trim()===ADMIN_PASS){
+isAdmin=true;
+refreshAdminUI();
+alert("Admin girişi başarılı.");
+}else{
+alert("Kullanıcı adı veya şifre hatalı.");
+}
+};
+
+window.adminLogout=function(){
+isAdmin=false;
+adminUser.value="admin";
+adminPass.value="";
+refreshAdminUI();
+};
+
+async function seedDefaults(){
+const snap=await getDocs(collection(db,ITEMS_COLLECTION));
+if(!snap.empty) return;
+
+for(const [section,items] of Object.entries(defaultItems)){
+for(let i=0;i<items.length;i++){
+await addDoc(collection(db,ITEMS_COLLECTION),{
+section,
+text:items[i],
+status:"",
+note:"",
+updatedBy:"",
+updatedAtText:"",
+order:i,
+createdAt:serverTimestamp()
+});
+}
+}
+}
+seedDefaults();
+
+onSnapshot(collection(db,ITEMS_COLLECTION),snap=>{
+const data={evrak:[],mimari:[],mekanik:[],elektrik:[]};
+currentItems=[];
+
+snap.forEach(d=>{
+const item={id:d.id,...d.data()};
+currentItems.push(item);
+if(data[item.section]) data[item.section].push(item);
+});
+
+Object.keys(data).forEach(k=>{
+data[k].sort((a,b)=>(a.order??999)-(b.order??999));
+document.getElementById(k+"List").innerHTML=data[k].map((item,index)=>itemHtml(item,index)).join("");
+});
+
+refreshAdminUI();
+});
+
+onSnapshot(collection(db,REQUESTS_COLLECTION),snap=>{
+requests=[];
+snap.forEach(d=>requests.push({id:d.id,...d.data()}));
+requests.sort((a,b)=>(b.createdAtText||"").localeCompare(a.createdAtText||""));
+renderRequests();
+});
+
+function itemHtml(item,index){
+const no=`${sectionCodes[item.section]}.${index+1}`;
+return `
+<div class="item">
+  <div>
+    <div class="itemText">${no} - ${item.text}</div>
+    <div class="muted">Son düzenleyen: ${item.updatedBy || "-"} | ${item.updatedAtText || "-"}</div>
+  </div>
+  <div class="status">
+    <label class="done"><input type="radio" name="${item.id}" ${item.status==="Tamamlandı"?"checked":""} onchange="setStatus('${item.id}','Tamamlandı')"> Tamamlandı</label>
+    <label class="today"><input type="radio" name="${item.id}" ${item.status==="Gün İçinde Tamamlanacak"?"checked":""} onchange="setStatus('${item.id}','Gün İçinde Tamamlanacak')"> Gün İçinde Tamamlanacak</label>
+    <label class="missing"><input type="radio" name="${item.id}" ${item.status==="Eksik"?"checked":""} onchange="setStatus('${item.id}','Eksik')"> Eksik</label>
+    <label class="na"><input type="radio" name="${item.id}" ${item.status==="N/A"?"checked":""} onchange="setStatus('${item.id}','N/A')"> N/A</label>
+  </div>
+  <input placeholder="Açıklama" value="${escAttr(item.note)}" onchange="setNote('${item.id}',this.value)">
+  <button class="btn edit adminOnly" onclick="editItem('${item.id}','${item.section}','${safe(item.text)}','${safe(item.note)}')">✏️</button>
+  <button class="btn del adminOnly" onclick="deleteItem('${item.id}')">🗑</button>
+</div>`;
+}
+
+window.addItem=async function(section){
+if(!isAdmin) return alert("Madde eklemek için admin girişi gerekli.");
+const text=prompt("Yeni madde:");
+if(!text) return;
+
+showSaving();
+await addDoc(collection(db,ITEMS_COLLECTION),{
+section,
+text,
+status:"",
+note:"",
+updatedBy:editor(),
+updatedAtText:nowText(),
+createdAt:serverTimestamp()
+});
+showSaved();
+};
+
+window.editItem=async function(id,section,oldText,oldNote){
+if(!isAdmin) return alert("Madde düzenlemek için admin girişi gerekli.");
+const text=prompt("Maddeyi düzenle:",oldText);
+if(!text) return;
+const note=prompt("Açıklama:",oldNote||"") || "";
+
+showSaving();
+await setDoc(doc(db,ITEMS_COLLECTION,id),{
+section,
+text,
+note,
+updatedBy:editor(),
+updatedAtText:nowText(),
+updatedAt:serverTimestamp()
+},{merge:true});
+showSaved();
+};
+
+window.deleteItem=async function(id){
+if(!isAdmin) return alert("Madde silmek için admin girişi gerekli.");
+if(!confirm("Bu madde silinsin mi?")) return;
+
+showSaving();
+await deleteDoc(doc(db,ITEMS_COLLECTION,id));
+showSaved();
+};
+
+window.setStatus=async function(id,status){
+showSaving();
+await setDoc(doc(db,ITEMS_COLLECTION,id),{
+status,
+updatedBy:editor(),
+updatedAtText:nowText(),
+updatedAt:serverTimestamp()
+},{merge:true});
+showSaved();
+};
+
+window.setNote=async function(id,note){
+showSaving();
+await setDoc(doc(db,ITEMS_COLLECTION,id),{
+note,
+updatedBy:editor(),
+updatedAtText:nowText(),
+updatedAt:serverTimestamp()
+},{merge:true});
+showSaved();
+};
+
+function missingItems(){return currentItems.filter(item=>item.status==="Eksik")}
+function emptyItems(){return currentItems.filter(item=>!item.status)}
+function listText(items){return items.map(item=>`${sectionCodes[item.section] || ""} - ${item.text}`).join("\\n- ")}
+function countStatus(status, list=currentItems){return list.filter(item=>item.status===status).length}
+
+function requiredInfoMissing(){
+return !storeName.value || !contractor.value || !editorName.value || !phone.value || !email.value;
+}
+
+function makeItemsSnapshot(){
+return currentItems.map(item=>({
+section:item.section,
+text:item.text,
+status:item.status || "",
+note:item.note || "",
+updatedBy:item.updatedBy || "",
+updatedAtText:item.updatedAtText || ""
+}));
+}
+
+function formData(status){
+const snapItems = makeItemsSnapshot();
+return {
+storeName:storeName.value,
+contractor:contractor.value,
+editorName:editorName.value,
+phone:phone.value,
+email:email.value,
+requestDate:requestDate.value,
+notes:notes.value,
+status,
+appointmentDate:"",
+appointmentHour:"",
+appointmentText:"",
+result:"",
+resultNote:"",
+items:snapItems,
+doneCount:countStatus("Tamamlandı",snapItems),
+todayCount:countStatus("Gün İçinde Tamamlanacak",snapItems),
+naCount:countStatus("N/A",snapItems),
+missingCount:0,
+createdAtText:nowText(),
+createdAt:serverTimestamp()
+};
+}
+
+window.submitRequest=async function(){
+if(requiredInfoMissing()){
+alert("Talepte bulunamazsınız. Genel bilgiler eksik.");
+return;
+}
+
+const miss=missingItems();
+const empty=emptyItems();
+
+if(miss.length || empty.length){
+alert("Talepte bulunamazsınız. Eksik veya değerlendirilmemiş maddeler bulunmaktadır.");
+
+validationBox.innerHTML=`
+<div class="card resultFail">
+<h2>❌ Talep Gönderilemedi</h2>
+<p>Eksik veya değerlendirilmemiş maddeler bulunmaktadır.</p>
+${miss.length ? `<br><b>Eksik Maddeler:</b><pre style="white-space:pre-wrap;background:#fee2e2;padding:12px;border-radius:10px;">- ${listText(miss)}</pre>` : ""}
+${empty.length ? `<br><b>Değerlendirilmemiş Maddeler:</b><pre style="white-space:pre-wrap;background:#fef9c3;padding:12px;border-radius:10px;">- ${listText(empty)}</pre>` : ""}
+</div>`;
+return;
+}
+
+validationBox.innerHTML="";
+showSaving();
+await addDoc(collection(db,REQUESTS_COLLECTION),formData("Açılış Talebi Gönderildi"));
+showSaved();
+alert("Talebiniz alındı.");
+};
+
+function resultClass(result){
+if(result==="Talep Uygun Görüldü") return "ok";
+if(result==="Talep Şartlı Uygun Görüldü") return "conditional";
+if(result==="Talep Reddedildi") return "reject";
+return "waiting";
+}
+
+function resultText(result){
+return result || "Sonuç Seçilmedi";
+}
+
+function renderRequests(){
+if(!requests.length){
+requestsBox.innerHTML=`<div class="card"><p class="muted">Henüz açılış talebi bulunmuyor.</p></div>`;
+return;
+}
+
+requestsBox.innerHTML=requests.map(req=>requestHtml(req)).join("");
+refreshAdminUI();
+}
+
+function requestHtml(req){
+const appointmentText=req.appointmentText||"";
+const result=req.result||"";
+const resultNote=req.resultNote||"";
+const bodyId="requestBody_"+req.id;
+const appointmentBoxId="appointmentBox_"+req.id;
+
+return `
+<div class="card requestCard">
+  <div class="requestHead" onclick="toggleRequest('${req.id}')">
+    <div>
+      <h2>${req.storeName || "-"}</h2>
+      <div class="reqMini">${req.requestDate || "-"} • ${req.status || "Açılış Talebi Gönderildi"}</div>
+    </div>
+    <span class="statusPill ${resultClass(result)}">${resultText(result)}</span>
+  </div>
+
+  <div class="requestBody" id="${bodyId}">
+    <h2>✅ Talebiniz Alındı</h2>
+    <h1 class="storeTitle">${req.storeName || "-"}</h1>
+
+    ${appointmentText ? `
+    <div class="appointmentBanner">
+      <h2>📅 RANDEVU VERİLDİ</h2>
+      <p>${appointmentText}</p>
+    </div>` : ``}
+
+    <p><b>Yüklenici Firma:</b> ${req.contractor || "-"}</p>
+    <p><b>Formu Düzenleyen:</b> ${req.editorName || "-"}</p>
+    <p><b>Telefon:</b> ${req.phone || "-"}</p>
+    <p><b>E-Posta:</b> ${req.email || "-"}</p>
+    <p><b>Tarih:</b> ${req.requestDate || "-"}</p>
+
+    <br>
+
+    <p><b>Durum:</b> ${req.status || "Açılış Talebi Gönderildi"}</p>
+    <p><b>Randevu:</b> ${appointmentText || "-"}</p>
+    <p><b>Sonuç:</b> ${result || "-"}</p>
+    <p><b>Açıklama:</b> ${resultNote || "-"}</p>
+
+    <br>
+
+    <div class="actionGrid">
+      <button class="submit adminOnly" style="background:#0F311D;" onclick="event.stopPropagation(); openAppointment('${req.id}')">RANDEVU VER</button>
+      <button class="dangerBtn adminOnly" onclick="event.stopPropagation(); deleteRequest('${req.id}')">TALEBİ SİL</button>
+    </div>
+
+    <div id="${appointmentBoxId}" class="appointmentBox">
+      <div class="grid">
+        <input id="appointmentDate_${req.id}" type="date" value="${req.appointmentDate || ""}">
+        <select id="appointmentHour_${req.id}">
+          <option value="">Saat Seç</option>
+          ${["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"].map(h=>`<option ${req.appointmentHour===h?"selected":""}>${h}</option>`).join("")}
+        </select>
+        <button class="loginBtn" onclick="saveAppointment('${req.id}')">Randevuyu Kaydet</button>
+      </div>
+    </div>
+
+    <br>
+
+    <h3>Sonuç</h3>
+    <div class="grid">
+      <select id="resultSelect_${req.id}" onchange="saveResult('${req.id}')">
+        <option value="">Boş</option>
+        <option ${result==="Talep Uygun Görüldü" ? "selected" : ""}>Talep Uygun Görüldü</option>
+        <option ${result==="Talep Şartlı Uygun Görüldü" ? "selected" : ""}>Talep Şartlı Uygun Görüldü</option>
+        <option ${result==="Talep Reddedildi" ? "selected" : ""}>Talep Reddedildi</option>
+      </select>
+      <input id="resultNote_${req.id}" placeholder="Sonuç açıklaması / şart / red nedeni" value="${escAttr(resultNote)}" onchange="saveResult('${req.id}')">
+    </div>
+
+    <br>
+
+    <span class="statusPill ${resultClass(result)}">${resultText(result)}</span>
+
+    <br><br>
+
+    <p><b>Tamamlandı:</b> ${req.doneCount ?? 0}</p>
+    <p><b>Gün İçinde Tamamlanacak:</b> ${req.todayCount ?? 0}</p>
+    <p><b>N/A:</b> ${req.naCount ?? 0}</p>
+    <p><b>Eksik:</b> ${req.missingCount ?? 0}</p>
+  </div>
+</div>`;
+}
+
+window.openAppointment=function(requestId){
+if(!isAdmin) return alert("Randevu vermek için admin girişi gerekli.");
+const box=document.getElementById("appointmentBox_"+requestId);
+const hidden=getComputedStyle(box).display==="none";
+box.style.display=hidden?"block":"none";
+};
+
+window.saveAppointment=async function(requestId){
+if(!isAdmin) return alert("Randevu vermek için admin girişi gerekli.");
+
+const d=document.getElementById("appointmentDate_"+requestId);
+const h=document.getElementById("appointmentHour_"+requestId);
+
+if(!d.value || !h.value){
+alert("Randevu tarihi ve saati seçilmelidir.");
+return;
+}
+
+const appointmentText=`${d.value} ${h.value}`;
+
+showSaving();
+await setDoc(doc(db,REQUESTS_COLLECTION,requestId),{
+status:"Randevu Verildi",
+appointmentDate:d.value,
+appointmentHour:h.value,
+appointmentText,
+updatedAtText:nowText(),
+updatedAt:serverTimestamp()
+},{merge:true});
+showSaved();
+alert("Randevu verildi.");
+};
+
+window.saveResult=async function(requestId){
+if(!isAdmin) return alert("Sonuç girmek için admin girişi gerekli.");
+
+const result=document.getElementById("resultSelect_"+requestId).value;
+const resultNote=document.getElementById("resultNote_"+requestId).value || "";
+
+showSaving();
+await setDoc(doc(db,REQUESTS_COLLECTION,requestId),{
+result,
+resultNote,
+updatedAtText:nowText(),
+updatedAt:serverTimestamp()
+},{merge:true});
+showSaved();
+};
+
+window.deleteRequest=async function(requestId){
+if(!isAdmin) return alert("Talep silmek için admin girişi gerekli.");
+if(!confirm("Bu talep silinsin mi?")) return;
+
+showSaving();
+await deleteDoc(doc(db,REQUESTS_COLLECTION,requestId));
+showSaved();
+alert("Talep silindi.");
+};
+</script>
+
+</body>
+</html>
